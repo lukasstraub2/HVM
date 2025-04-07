@@ -83,18 +83,9 @@ in parallel mode (all redexes are evaluated in each step).
 
 The dump will be written to the file `dots.js` in the current directory.
 
-You can view the graph dump with `index.html` as follows:
-
-Copy the file `dots.js` to the HVM directory. Then start a http server in the
-HVM directory:
-
-```sh
-cd HVM
-python3 -m http.server
-```
-
-Now you can visit `http://127.0.0.1:8000` and step through the graph with
-the wasd keys on your keyboard.
+You can view the graph dump as follows: Copy the file `dots.js` to the HVM
+directory, then open `index.html` in your browser. You can step through
+the graph with the wasd keys.
 
 How parallel is my Bend/HVM program?
 ------------------------------------
@@ -103,3 +94,6 @@ With the `--parallel` option, HVM also calculates the average number of regexes
 in each step, thus giving a measurement of how parallel a given bend program is.
 
 You can use the `--parallel` option without the `--dump` option as well.
+
+With the `--profile` option, a parallelization profile will be written to
+`profile.csv`. This file contains the number of regexes per step.

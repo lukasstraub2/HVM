@@ -107,6 +107,7 @@ pub struct TMem {
   pub itrs: u32, // interaction count
   pub para: Option<f64>, // parallelization factor
   pub dump: Option<String>, // graph dump output
+  pub profile: Option<String>, // parallelization profile
   pub nput: usize, // next node allocation index
   pub vput: usize, // next vars allocation index
   pub nloc: Vec<usize>, // allocated node locations
@@ -573,7 +574,7 @@ impl<'a> Drop for GNet<'a> {
 
 impl TMem {
   // TODO: implement a TMem::new() fn
-  pub fn new(tid: u32, tids: u32, queue: bool, dump: bool) -> Self {
+  pub fn new(tid: u32, tids: u32, queue: bool, dump: bool, profile: bool) -> Self {
     TMem {
       tid,
       tids,
@@ -581,6 +582,7 @@ impl TMem {
       itrs: 0,
       para: None,
       dump: if dump {Some(String::new())} else {None},
+      profile: if profile {Some(String::new())} else {None},
       nput: 0,
       vput: 0,
       nloc: vec![0; 0xFFF], // FIXME: move to a constant
@@ -952,11 +954,19 @@ impl TMem {
 
       let _ = fs::write("dots.js", s);
     }
+
+    if let Some(ref mut s) = self.profile {
+      let _ = fs::write("profile.csv", s);
+    }
   }
 
   fn dump(&mut self, net: &GNet, book: &Book) {
     if let Some(ref mut s) = self.dump {
       s.push_str(&format!("`{}`,\n", net.dump(&self.rbag, book)));
+    }
+
+    if let Some(ref mut s) = self.profile {
+      s.push_str(&format!("{}\n", self.rbag.len()));
     }
   }
 

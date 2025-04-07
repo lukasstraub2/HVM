@@ -29,6 +29,10 @@ fn main() {
       Command::new("run")
         .about("Interprets a file (using Rust)")
         .arg(Arg::new("file").required(true))
+        .arg(Arg::new("profile")
+          .long("profile")
+          .action(ArgAction::SetTrue)
+          .help("Write parallelization profile to profile.csv"))
         .arg(Arg::new("dump")
           .long("dump")
           .action(ArgAction::SetTrue)
@@ -77,7 +81,7 @@ fn main() {
       let file = sub_matches.get_one::<String>("file").expect("required");
       let code = fs::read_to_string(file).expect("Unable to read file");
       let book = ast::Book::parse(&code).unwrap_or_else(|er| panic!("{}",er)).build();
-      run(&book, *sub_matches.get_one::<bool>("parallel").unwrap(), *sub_matches.get_one::<bool>("dump").unwrap());
+      run(&book, *sub_matches.get_one::<bool>("parallel").unwrap(), *sub_matches.get_one::<bool>("parallel").unwrap(), *sub_matches.get_one::<bool>("dump").unwrap());
     }
     Some(("run-c", sub_matches)) => {
       let file = sub_matches.get_one::<String>("file").expect("required");
@@ -165,12 +169,12 @@ fn main() {
   }
 }
 
-pub fn run(book: &hvm::Book, parallel: bool, dump: bool) {
+pub fn run(book: &hvm::Book, profile: bool, parallel: bool, dump: bool) {
   // Initializes the global net
   let net = hvm::GNet::new(1 << 29, 1 << 29);
 
   // Initializes threads
-  let mut tm = hvm::TMem::new(0, 1, parallel, dump);
+  let mut tm = hvm::TMem::new(0, 1, parallel, dump, profile);
 
   // Creates an initial redex that calls main
   let main_id = book.defs.iter().position(|def| def.name == "main").unwrap();
